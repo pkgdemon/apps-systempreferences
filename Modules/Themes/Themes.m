@@ -143,11 +143,13 @@
   domain = [NSMutableDictionary dictionaryWithDictionary:
     [defaults persistentDomainForName: NSGlobalDomain]];
 
-  if ([themeName isEqualToString:@"GNUstep"] == YES)
-    [domain removeObjectForKey:@"GSTheme"];
-  else
-    [domain setObject:themeName
-               forKey: @"GSTheme"];
+  /* Always store the theme name, including "GNUstep" (which GSTheme maps to
+   * the built-in theme). Removing the key instead can leave NSGlobalDomain
+   * empty, which deletes its file; running applications do not notice a
+   * deleted domain file on -synchronize and would keep the previous theme.
+   */
+  [domain setObject: themeName
+             forKey: @"GSTheme"];
   [defaults setPersistentDomain: domain forName: NSGlobalDomain];
   [defaults synchronize];
 
